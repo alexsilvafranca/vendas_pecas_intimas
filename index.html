@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Controle de Vendas</title>
+<style>
+:root{--bg:#faf6f7;--card:#fff;--tx:#2b2226;--mut:#7a6a71;--ac:#b03a62;--bd:#eadfe3;--ok:#2e7d4f;--er:#c0392b;--wr:#b7791f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1619;--card:#2a2024;--tx:#f3e9ed;--mut:#b5a3ab;--ac:#e0709a;--bd:#3d2f35;--ok:#5fbf86;--er:#ef7b6e;--wr:#e5b25d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1d1619;--card:#2a2024;--tx:#f3e9ed;--mut:#b5a3ab;--ac:#e0709a;--bd:#3d2f35;--ok:#5fbf86;--er:#ef7b6e;--wr:#e5b25d;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:820px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:6px 0 12px;color:var(--ac)}
+nav{display:flex;gap:6px;margin-bottom:12px}
+nav button{flex:1;padding:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;font:inherit;cursor:pointer}
+nav button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:2px}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+button.p{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:10px 14px;font:inherit;cursor:pointer}
+button.s{background:none;border:1px solid var(--bd);color:var(--tx);border-radius:8px;padding:6px 10px;font:inherit;cursor:pointer}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--bd)}
+.row:last-child{border:0}.mut{color:var(--mut);font-size:13px}
+.tag{font-size:12px;padding:2px 8px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.ok{color:var(--ok)}.er{color:var(--er)}.wr{color:var(--wr)}
+.big{font-size:22px;font-weight:600}.hide{display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>Controle de Vendas</h1>
+<nav id="nav"></nav>
+
+<section id="v-estoque">
+ <div class="card"><div class="grid">
+  <div><label>Código</label><input id="e-cod"></div>
+  <div style="grid-column:span 2"><label>Descrição</label><input id="e-desc" placeholder="Ex.: Conjunto renda"></div>
+  <div><label>Tamanho</label><input id="e-tam"></div>
+  <div><label>Cor</label><input id="e-cor"></div>
+  <div><label>Qtd.</label><input id="e-qtd" type="number" min="1" value="1"></div>
+  <div><label>Preço de venda (R$)</label><input id="e-pre" type="number" step="0.01" min="0"></div>
+ </div><p><button class="p" id="e-add">Dar entrada</button></p></div>
+ <div class="card"><input id="e-busca" placeholder="Buscar peça..."><div id="e-lista"></div></div>
+</section>
+
+<section id="v-vendas" class="hide">
+ <div class="card">
+  <div class="grid">
+   <div style="grid-column:span 2"><label>Cliente</label><input id="s-cli"></div>
+   <div><label>Data da venda</label><input id="s-data" type="date"></div>
+   <div style="align-self:end"><label style="display:flex;gap:6px;align-items:center;font-size:14px;color:var(--tx);padding:9px 0"><input id="s-vista" type="checkbox" style="width:auto"> Pagamento à vista</label></div><div><label>Prazo de pagamento</label><input id="s-prazo" type="date"></div>
+  </div>
+  <div class="grid" style="margin-top:8px">
+   <div style="grid-column:span 2"><label>Peça</label><select id="s-item"></select></div>
+   <div><label>Qtd.</label><input id="s-qtd" type="number" min="1" value="1"></div>
+   <div style="align-self:end"><button class="s" id="s-addl" style="width:100%">+ Adicionar</button></div>
+  </div>
+  <div id="s-carrinho" style="margin-top:8px"></div>
+  <p><button class="p" id="s-reg">Registrar venda</button></p>
+ </div>
+ <div class="card"><div id="s-lista"></div></div>
+</section>
+
+<section id="v-resumo" class="hide">
+ <div class="card"><label>Mês</label><input id="r-mes" type="month"></div>
+ <div class="grid" id="r-cards"></div>
+ <div class="card" style="margin-top:12px"><b>Backup</b>
+  <p class="mut">Os dados ficam salvos neste aparelho. Copie o texto abaixo para guardar uma cópia, ou cole uma cópia antiga e restaure.</p>
+  <textarea id="bk" rows="3"></textarea>
+  <p><button class="s" id="bk-g">Gerar cópia</button> <button class="s" id="bk-r">Restaurar</button></p>
+ </div>
+</section>
+</main>
+
+<script>
+var KEY='cv_dados_v1',D={itens:[],vendas:[]},cart=[];
+try{var raw=localStorage.getItem(KEY);if(raw)D=JSON.parse(raw)}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function brl(n){return (n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function fd(s){return s?s.split('-').reverse().join('/'):'—'}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function taxa(total){return total<=300?0.30:0.35}
+function comissao(total){return total*taxa(total)}
+function status(v){if(v.pago)return['Pago','ok'];if(v.prazo&&v.prazo<today())return['Atrasado','er'];return['A receber','wr']}
+function totalVenda(v){return v.linhas.reduce(function(a,l){return a+l.qtd*l.preco},0)}
+
+var tabs=[['estoque','Estoque'],['vendas','Vendas'],['resumo','Resumo']];
+function show(t){tabs.forEach(function(x){$('v-'+x[0]).classList.toggle('hide',x[0]!==t)});
+ Array.prototype.forEach.call($('nav').children,function(b,i){b.classList.toggle('on',tabs[i][0]===t)});
+ if(t==='vendas')renderVendas();if(t==='resumo')renderResumo();if(t==='estoque')renderEstoque()}
+tabs.forEach(function(x){var b=document.createElement('button');b.textContent=x[1];b.onclick=function(){show(x[0])};$('nav').appendChild(b)});
+
+function renderEstoque(){
+ var q=$('e-busca').value.toLowerCase(),h='';
+ D.itens.filter(function(i){return (i.cod+' '+i.desc+' '+i.cor).toLowerCase().indexOf(q)>-1}).forEach(function(i){
+  h+='<div class="row"><div><b>'+esc(i.desc)+'</b> <span class="mut">'+esc(i.cod)+'</span><div class="mut">Tam. '+esc(i.tam||'—')+' · '+esc(i.cor||'—')+' · '+brl(i.preco)+'</div></div>'+
+  '<div style="text-align:right"><span class="tag '+(i.qtd>0?'ok':'er')+'">'+i.qtd+' em estoque</span><div style="margin-top:4px"><button class="s" onclick="repor(\''+i.id+'\')">+ Repor</button> <button class="s" onclick="delItem(\''+i.id+'\')">Excluir</button></div></div></div>'});
+ $('e-lista').innerHTML=h||'<p class="mut">Nenhuma peça cadastrada.</p>'}
+$('e-busca').oninput=renderEstoque;
+$('e-add').onclick=function(){
+ var desc=$('e-desc').value.trim(),preco=parseFloat($('e-pre').value),qtd=parseInt($('e-qtd').value);
+ if(!desc||isNaN(preco)||!(qtd>0)){alert('Preencha descrição, quantidade e preço.');return}
+ D.itens.push({id:uid(),cod:$('e-cod').value.trim(),desc:desc,tam:$('e-tam').value.trim(),cor:$('e-cor').value.trim(),qtd:qtd,preco:preco});
+ save();['e-cod','e-desc','e-tam','e-cor','e-pre'].forEach(function(i){$(i).value=''});$('e-qtd').value=1;renderEstoque()};
+function repor(id){var n=parseInt(prompt('Quantas peças entraram?','1'));if(n>0){D.itens.find(function(i){return i.id===id}).qtd+=n;save();renderEstoque()}}
+function delItem(id){if(confirm('Excluir esta peça do estoque?')){D.itens=D.itens.filter(function(i){return i.id!==id});save();renderEstoque()}}
+
+function renderCarrinho(){
+ var t=0,h='';cart.forEach(function(l,k){var it=D.itens.find(function(i){return i.id===l.id});t+=l.qtd*l.preco;
+  h+='<div class="row"><span>'+l.qtd+'× '+esc(it?it.desc:'?')+'</span><span>'+brl(l.qtd*l.preco)+' <button class="s" onclick="cart.splice('+k+',1);renderCarrinho()">×</button></span></div>'});
+ if(cart.length)h+='<div class="row"><b>Total</b><b>'+brl(t)+'</b></div>';
+ $('s-carrinho').innerHTML=h}
+function toggleVista(){var v=$('s-vista').checked;$('s-prazo').disabled=v;if(v)$('s-prazo').value='';$('s-prazo').min=$('s-data').value||today()}
+$('s-vista').onchange=toggleVista;
+$('s-data').onchange=function(){toggleVista();var p=$('s-prazo');if(p.value&&p.value<p.min)p.value=''};
+$('s-addl').onclick=function(){
+ var id=$('s-item').value,it=D.itens.find(function(i){return i.id===id}),q=parseInt($('s-qtd').value);
+ if(!it||!(q>0))return;
+ var ja=cart.filter(function(l){return l.id===id}).reduce(function(a,l){return a+l.qtd},0);
+ if(ja+q>it.qtd){alert('Estoque insuficiente (restam '+(it.qtd-ja)+').');return}
+ cart.push({id:id,qtd:q,preco:it.preco});renderCarrinho()};
+$('s-reg').onclick=function(){
+ if(!cart.length){alert('Adicione ao menos uma peça.');return}
+ var dv=$('s-data').value||today(),vista=$('s-vista').checked,pz=$('s-prazo').value;
+ if(!vista){if(!pz){alert('Informe o prazo de pagamento ou marque pagamento à vista.');return}if(pz<dv){alert('O prazo de pagamento não pode ser anterior à data da venda.');return}}
+ var linhas=cart.map(function(l){var it=D.itens.find(function(i){return i.id===l.id});it.qtd-=l.qtd;return{id:l.id,desc:it.desc,qtd:l.qtd,preco:l.preco}});
+ D.vendas.push({id:uid(),cli:$('s-cli').value.trim()||'Sem nome',data:dv,prazo:vista?'':pz,pago:vista,linhas:linhas});
+ save();cart=[];$('s-cli').value='';$('s-prazo').value='';$('s-vista').checked=false;renderCarrinho();renderVendas()};
+function renderVendas(){
+ $('s-data').value=$('s-data').value||today();toggleVista();
+ $('s-item').innerHTML=D.itens.filter(function(i){return i.qtd>0}).map(function(i){return'<option value="'+i.id+'">'+esc(i.desc)+' '+esc(i.tam)+' — '+brl(i.preco)+' ('+i.qtd+')</option>'}).join('');
+ var h='';D.vendas.slice().reverse().forEach(function(v){var t=totalVenda(v),s=status(v);
+  h+='<div class="row"><div><b>'+esc(v.cli)+'</b> <span class="mut">'+fd(v.data)+'</span><div class="mut">'+v.linhas.map(function(l){return l.qtd+'× '+esc(l.desc)}).join(', ')+'</div><div class="mut">Prazo: '+fd(v.prazo)+'</div></div>'+
+  '<div style="text-align:right"><b>'+brl(t)+'</b><div><span class="tag '+s[1]+'">'+s[0]+'</span></div><div style="margin-top:4px"><button class="s" onclick="pagar(\''+v.id+'\')">'+(v.pago?'Desfazer':'Marcar pago')+'</button> <button class="s" onclick="delVenda(\''+v.id+'\')">Excluir</button></div></div></div>'});
+ $('s-lista').innerHTML=h||'<p class="mut">Nenhuma venda registrada.</p>';renderCarrinho()}
+function pagar(id){var v=D.vendas.find(function(x){return x.id===id});v.pago=!v.pago;save();renderVendas()}
+function delVenda(id){var v=D.vendas.find(function(x){return x.id===id});
+ if(confirm('Excluir esta venda? As peças voltam ao estoque.')){v.linhas.forEach(function(l){var it=D.itens.find(function(i){return i.id===l.id});if(it)it.qtd+=l.qtd});D.vendas=D.vendas.filter(function(x){return x.id!==id});save();renderVendas()}}
+
+function renderResumo(){
+ if(!$('r-mes').value)$('r-mes').value=today().slice(0,7);
+ var m=$('r-mes').value,vs=D.vendas.filter(function(v){return v.data.slice(0,7)===m});
+ var tot=0,com=0,comPg=0,rec=0,atr=0,totPg=0;
+ vs.forEach(function(v){var t=totalVenda(v);tot+=t;if(v.pago)totPg+=t;else{rec+=t;if(v.prazo&&v.prazo<today())atr+=t}});var tx=taxa(tot);com=tot*tx;comPg=totPg*tx;
+ var c=[['Vendido no mês',brl(tot),''],['Comissão do mês ('+Math.round(tx*100)+'%)',brl(com),'ok'],['Comissão já recebida',brl(comPg),''],['A receber dos clientes',brl(rec),'wr'],['Em atraso',brl(atr),atr?'er':''],['A pagar ao fornecedor (mês)',brl(tot-com),'er'],['Já pode repassar (vendas pagas)',brl(totPg-comPg),''],['Nº de vendas',vs.length,'']];
+ $('r-cards').innerHTML=c.map(function(x){return'<div class="card"><div class="mut">'+x[0]+'</div><div class="big '+x[2]+'">'+x[1]+'</div></div>'}).join('')}
+$('r-mes').onchange=renderResumo;
+$('bk-g').onclick=function(){$('bk').value=JSON.stringify(D);$('bk').select()};
+$('bk-r').onclick=function(){try{var o=JSON.parse($('bk').value);if(o.itens&&o.vendas&&confirm('Substituir os dados atuais pela cópia?')){D=o;save();show('estoque')}}catch(e){alert('Texto de cópia inválido.')}};
+show('estoque');
+</script>
+</body>
+</html>
