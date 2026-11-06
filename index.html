@@ -150,7 +150,7 @@ function renderResumo(){
  var m=$('r-mes').value,vs=D.vendas.filter(function(v){return v.data.slice(0,7)===m});
  var tot=0,com=0,comPg=0,rec=0,atr=0,totPg=0;
  vs.forEach(function(v){var t=totalVenda(v);tot+=t;if(v.pago)totPg+=t;else{rec+=t;if(v.prazo&&v.prazo<today())atr+=t}});var tx=taxa(tot);com=tot*tx;comPg=totPg*tx;
- var c=[['Vendido no mês',brl(tot),''],['Comissão do mês ('+Math.round(tx*100)+'%)',brl(com),'ok'],['Comissão já recebida',brl(comPg),''],['A receber dos clientes',brl(rec),'wr'],['Em atraso',brl(atr),atr?'er':''],['A pagar ao fornecedor (mês)',brl(tot-com),'er'],['Já pode repassar (vendas pagas)',brl(totPg-comPg),''],['Nº de vendas',vs.length,'']];
+ var c=[['Vendido no mês',brl(tot),''],['Comissão do mês ('+Math.round(tx*100)+'%)',brl(com),'ok'],['Comissão já recebida',brl(comPg),''],['Valor recebido dos clientes',brl(totPg),'ok'],['A receber dos clientes',brl(rec),'wr'],['Em atraso',brl(atr),atr?'er':''],['A pagar ao fornecedor (mês)',brl(tot-com),'er'],['Já pode repassar (vendas pagas)',brl(totPg-comPg),''],['Nº de vendas',vs.length,'']];
  $('r-cards').innerHTML=c.map(function(x){return'<div class="card"><div class="mut">'+x[0]+'</div><div class="big '+x[2]+'">'+x[1]+'</div></div>'}).join('')}
 $('r-mes').onchange=renderResumo;
 $('bk-g').onclick=function(){$('bk').value=JSON.stringify(D);$('bk').select()};
